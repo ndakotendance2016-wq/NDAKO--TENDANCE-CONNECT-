@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NDAKO Tendance Connect - Portail Local HTML</title>
+    <style>
+        :root {
+            --bg-deep: #0A0A0A;
+            --bg-sec: #141414;
+            --gold: #D4AF37;
+            --gold-muted: #9E7E1D;
+            --text-light: #FFFFFF;
+            --text-muted: #8E8E93;
+            --green: #4CAF50;
+            --red: #CF6679;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 50px;
+        }
+
+        /* Ambient Glow Background Animations */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -150px;
+            left: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        header {
+            background: var(--bg-sec);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 20px 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            color: var(--gold);
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: var(--gold);
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* Banner Card */
+        .promo-banner {
+            background: linear-gradient(135deg, var(--bg-sec) 0%, #1e1e1e 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        .promo-banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+            transition: 0.5s;
+            animation: shine 4s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .promo-banner h2 {
+            font-size: 20px;
+            color: var(--gold);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .promo-banner p {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        .offline-tag {
+            display: inline-block;
+            background-color: rgba(76, 175, 80, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Tab Menu */
+        .tab-menu {
+            display: flex;
+            background: var(--bg-sec);
+            padding: 5px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            flex: 1;
+            padding: 10px 5px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--gold);
+            color: var(--bg-deep);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Dynamic Section Content */
+        .section-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Property Cards Grid */
+        .property-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media(min-width: 600px) {
+            .property-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .property-card {
+            background: var(--bg-sec);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .property-img-placeholder {
+            height: 140px;
+            background: linear-gradient(45deg, #18181b, #27272a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 30px;
+            position: relative;
+        }
+
+        .badge-city {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(10, 10, 10, 0.85);
+            border: 1.5px solid var(--gold);
+            color: var(--gold);
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .property-info {
+            padding: 15px;
+        }
+
+        .property-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .property-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .property-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: var(--bg-deep);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+        }
+
+        /* Simulator Styles */
+        .simulator-card {
+            background: var(--bg-sec);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .form-label span {
+            color: var(--gold);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #2a2a2a;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.82);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.25);
+        }
+
+        .simulation-result {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px dashed var(--gold);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .simulation-result h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .simulation-result .result-val {
+            font-size: 24px;
+            font-weight: 850;
+            color: var(--gold);
+        }
+
+        /* Lead Registration / Dynamic offline store */
+        .register-form input, .register-form select {
+            width: 100%;
+            background: var(--bg-deep);
+            border: 1.5px solid #2a2a2a;
+            color: var(--text-light);
+            padding: 10px 12px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 13px;
+            margin-bottom: 12px;
+            transition: border-color 0.3s;
+        }
+
+        .register-form input:focus, .register-form select:focus {
+            border-color: var(--gold);
+        }
+
+        .submit-btn {
+            background: var(--gold);
+            color: var(--bg-deep);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .leads-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .lead-item {
+            background: var(--bg-deep);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 8px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lead-meta {
+            color: var(--text-muted);
+        }
+
+        .lead-role {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Floating Alert Banner */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--bg-sec);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-btn {
+            background: transparent;
+            border: none;
+            color: var(--gold);
+            font-weight: bold;
+            cursor: pointer;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-container">
+            <span class="brand-logo">🌌</span>
+            <div>
+                <h1 class="brand-title">NDAKO TENDANCE</h1>
+                <p class="brand-subtitle">Portail Web HTML Local v2016</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Promo Banner -->
+        <div class="promo-banner">
+            <h2>Fintech & Immobilier Local</h2>
+            <p>Ce portail auto-géré fonctionne intégralement hors-connexion. Explorez, simulez vos mensualités de crédit foncier et pré-enregistrez vos visites.</p>
+            <span class="offline-tag">Intégré en Local</span>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('properties')">PARC IMMOBILIER</button>
+            <button class="tab-btn" onclick="switchTab('simulator')">SIMULATEUR FONCIER</button>
+            <button class="tab-btn" onclick="switchTab('register')">DEMANDE SECURE</button>
+        </div>
+
+        <!-- Section List / Properties -->
+        <div id="tab-properties" class="section-content active">
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-img-placeholder">
+                        🏢
+                        <div class="badge-city">POINTE-NOIRE</div>
+                    </div>
+                    <div class="property-info">
+                        <div class="property-title">Appartement Premium - Centre Ville</div>
+                        <div class="property-price">450.000 FCFA / mois</div>
+                        <p class="property-desc">Superbe mezzanine avec parking sécurisé, climatisation intégrée et kit de secours moderne.</p>
+                        <button class="action-btn" onclick="triggerSim('450000')">Simuler le Financement</button>
+                    </div>
+                </div>
+
+                <div class="property-card">
+                    <div class="property-img-placeholder">
+                        🏡
+                        <div class="badge-city">BRAZZAVILLE</div>
+                    </div>
+                    <div class="property-info">
+                        <div class="property-title">Villa Royale - Moungali</div>
+                        <div class="property-price">1.200.000 FCFA / mois</div>
+                        <p class="property-desc">Terrasse arborée, salon d'honneur, 4 chambres et cuisine équipée aux normes de l'agence.</p>
+                        <button class="action-btn" onclick="triggerSim('1200000')">Simuler le Financement</button>
+                    </div>
+                </div>
+
+                <div class="property-card">
+                    <div class="property-img-placeholder">
+                        🏠
+                        <div class="badge-city">POINTE-NOIRE</div>
+                    </div>
+                    <div class="property-info">
+                        <div class="property-title">Studio Chic - Côte Sauvage</div>
+                        <div class="property-price">250.000 FCFA / mois</div>
+                        <p class="property-desc">Studio tout équipé idéal pour cadres, vue partielle ocean, service de conciergerie inclus.</p>
+                        <button class="action-btn" onclick="triggerSim('250000')">Simuler le Financement</button>
+                    </div>
+                </div>
+
+                <div class="property-card">
+                    <div class="property-img-placeholder">
+                        🏤
+                        <div class="badge-city">BRAZZAVILLE</div>
+                    </div>
+                    <div class="property-info">
+                        <div class="property-title">Bureau d'Affaires - Centre d'affaires</div>
+                        <div class="property-price">750.000 FCFA / mois</div>
+                        <p class="property-desc">Emplacement commercial stratégique, salle de conférence, haut débit d'énergie secourue.</p>
+                        <button class="action-btn" onclick="triggerSim('750000')">Simuler le Financement</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Simulator -->
+        <div id="tab-simulator" class="section-content">
+            <div class="simulator-card">
+                <h3 style="color: var(--gold); font-size:16px; margin-bottom:15px; text-transform: uppercase;">Moteur de calcul bancaire</h3>
+                
+                <div class="form-group">
+                    <div class="form-label">
+                        Budget d'acquisition<span><span id="label-capital">30 000 000</span> FCFA</span>
+                    </div>
+                    <input type="range" id="input-capital" min="5000000" max="150000000" step="1000000" value="30000000" oninput="calculateMortgage()">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">
+                        Apport Personnel<span><span id="label-apport">6 000 000</span> FCFA (20%)</span>
+                    </div>
+                    <input type="range" id="input-apport" min="0" max="60000000" step="500000" value="6000000" oninput="calculateMortgage()">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">
+                        Durée du Prêt<span><span id="label-duration">15</span> ans</span>
+                    </div>
+                    <input type="range" id="input-duration" min="5" max="25" step="1" value="15" oninput="calculateMortgage()">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">
+                        Taux Annuel Souhaité<span><span id="label-rate">6.5</span> %</span>
+                    </div>
+                    <input type="range" id="input-rate" min="3" max="12" step="0.1" value="6.5" oninput="calculateMortgage()">
+                </div>
+
+                <div class="simulation-result">
+                    <h3>Mensualité Estimée (BFI Hors Assurance)</h3>
+                    <div class="result-val" id="result-monthly">208.802 FCFA</div>
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top:6px;">Calcul de simulation certifié conforme aux barèmes bancaires de la sous-région.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Client Registry / Store requests locally -->
+        <div id="tab-register" class="section-content">
+            <div class="simulator-card">
+                <h3 style="color: var(--gold); font-size:16px; margin-bottom:15px; text-transform: uppercase;">Formulaire d'enregistrement hors-ligne</h3>
+                
+                <form class="register-form" onsubmit="saveOfflineLead(event)">
+                    <div class="form-group">
+                        <label style="font-size: 11px; color: var(--text-muted);">Votre nom complet</label>
+                        <input type="text" id="lead-name" placeholder="Ex: Jean Malonga" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 11px; color: var(--text-muted);">Numéro de téléphone WhatsApp</label>
+                        <input type="tel" id="lead-phone" placeholder="Ex: +242 06 000 0000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 11px; color: var(--text-muted);">Quel est votre profil ?</label>
+                        <select id="lead-role">
+                            <option value="Acheteur">Acheteur Impatient</option>
+                            <option value="Locataire">Locataire Référencé</option>
+                            <option value="Bailleur">Bailleur ou Propriétaire</option>
+                            <option value="Démarcheur">Agent / Démarcheur Local</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">ENREGISTRER EN LOCAL & CONNECTER</button>
+                </form>
+
+                <h4 style="margin-top: 25px; font-size:12px; color: var(--gold); text-transform: uppercase;">Demandes en attente de synchronisation</h4>
+                <div class="leads-list" id="leads-list">
+                    <!-- Loaded dynamically from localStorage -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div class="toast" id="toast">
+        <span id="toast-text">Action effectuée avec succès !</span>
+        <button class="toast-btn" onclick="hideToast()">OK</button>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Remove active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section-content').forEach(sect => sect.classList.remove('active'));
+
+            // Find clicked button index and tab
+            const activeBtn = event ? event.target : Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.includes(tabId.toUpperCase()));
+            if(activeBtn) activeBtn.classList.add('active');
+
+            const contentElem = document.getElementById('tab-' + tabId);
+            if(contentElem) contentElem.classList.add('active');
+        }
+
+        function triggerSim(amount) {
+            switchTab('simulator');
+            document.getElementById('input-capital').value = amount;
+            document.getElementById('input-apport').value = Math.floor(amount * 0.2); // 20% by default
+            calculateMortgage();
+            showToast("Montant du bien immobilier injecté dans le calculateur bancaire !");
+        }
+
+        function calculateMortgage() {
+            const capital = parseInt(document.getElementById('input-capital').value);
+            const apport = parseInt(document.getElementById('input-apport').value);
+            const duration = parseInt(document.getElementById('input-duration').value);
+            const rate = parseFloat(document.getElementById('input-rate').value) / 100 / 12;
+
+            // Sync labels
+            document.getElementById('label-capital').innerText = capital.toLocaleString('fr-FR');
+            document.getElementById('label-apport').innerText = apport.toLocaleString('fr-FR') + " (" + Math.round((apport/capital)*100) + "%)";
+            document.getElementById('label-duration').innerText = duration;
+            document.getElementById('label-rate').innerText = document.getElementById('input-rate').value;
+
+            // Restrict input appraisal so apport <= capital
+            const actualCapital = capital - apport;
+            if(actualCapital <= 0) {
+                document.getElementById('result-monthly').innerText = "0 FCFA";
+                return;
+            }
+
+            const months = duration * 12;
+            let monthlyPayment = 0;
+
+            if (rate === 0) {
+                monthlyPayment = actualCapital / months;
+            } else {
+                monthlyPayment = (actualCapital * rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+            }
+
+            document.getElementById('result-monthly').innerText = Math.round(monthlyPayment).toLocaleString('fr-FR') + " FCFA";
+        }
+
+        function saveOfflineLead(e) {
+            e.preventDefault();
+            const name = document.getElementById('lead-name').value;
+            const phone = document.getElementById('lead-phone').value;
+            const role = document.getElementById('lead-role').value;
+
+            const newLead = {
+                name: name,
+                phone: phone,
+                role: role,
+                time: new Date().toLocaleTimeString('fr-FR')
+            };
+
+            let leads = JSON.parse(localStorage.getItem('ndako_offline_leads') || '[]');
+            leads.unshift(newLead);
+            localStorage.setItem('ndako_offline_leads', JSON.stringify(leads));
+
+            // Clean form
+            document.getElementById('lead-name').value = '';
+            document.getElementById('lead-phone').value = '';
+
+            loadLeadsList();
+            showToast("Demande enregistrée localement ! Elle sera synchronisée à la prochaine connexion.");
+        }
+
+        function loadLeadsList() {
+            const listContainer = document.getElementById('leads-list');
+            let leads = JSON.parse(localStorage.getItem('ndako_offline_leads') || '[]');
+
+            if(leads.length === 0) {
+                listContainer.innerHTML = '<p style="font-size:10px; color: var(--text-muted); text-align:center; padding: 15px 0;">Aucune demande enregistrée hors-ligne.</p>';
+                return;
+            }
+
+            let html = '';
+            leads.forEach(lead => {
+                html += `
+                    <div class="lead-item">
+                        <div>
+                            <strong>${lead.name}</strong> <span class="lead-meta">(${lead.phone})</span>
+                            <div style="color: var(--text-muted); font-size:9px; margin-top: 3px;">Enregistré à ${lead.time}</div>
+                        </div>
+                        <span class="lead-role">${lead.role}</span>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = text;
+            toast.classList.add('show');
+            setTimeout(() => {
+                hideToast();
+            }, 3500);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+
+        // Initialize lists and default calculation
+        window.onload = function() {
+            calculateMortgage();
+            loadLeadsList();
+        };
+    </script>
+</body>
+</html>

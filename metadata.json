@@ -1,0 +1,6 @@
+{
+  "name": "NDAKO - TENDANCE CONNECT",
+  "description": "Système de mise en relation immobilière triple action : clients, propriétaires, démarcheurs, agents, banques et notaires avec suivi de disponibilité en temps réel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
